@@ -1,18 +1,1 @@
 runtime: typescript
-
-startCommand:
-  command: node
-  args:
-    - dist/smithery-index.js
-
-configSchema:
-  type: object
-  properties:
-    n8nApiUrl:
-      type: string
-      title: n8n API URL
-      description: Optional n8n instance URL
-    n8nApiKey:
-      type: string
-      title: n8n API Key
-      description: Optional n8n API key for authentication
