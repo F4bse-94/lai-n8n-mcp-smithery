@@ -1,20 +1,13 @@
-name: lai-n8n-mcp-smithery
-version: 1.0.0
-description: n8n MCP Server for Smithery
+transport: stdio
 
-build:
-  command: npm install && npm run build
-  
-runtime:
-  entrypoint: dist/smithery-index.js
-  
-config:
-  schema:
+configSchema:
+  type: object
+  properties:
     n8nApiUrl:
       type: string
-      description: "n8n API URL (optional)"
-      required: false
+      title: n8n API URL
+      description: Optional n8n instance URL
     n8nApiKey:
       type: string
-      description: "n8n API Key (optional)"
-      required: false
+      title: n8n API Key
+      description: Optional n8n API key for authentication
