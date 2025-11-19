@@ -1,34 +1,37 @@
 import { z } from "zod";
 
-const configSchema = z.object({
+export const configSchema = z.object({
   n8nApiUrl: z.string().url().optional(),
   n8nApiKey: z.string().optional(),
 });
 
-export default function createServer(context: { config: z.infer<typeof configSchema> }) {
+export default function createServer() {
   return {
-    name: "n8n-mcp",
-    version: "1.0.0",
-    
-    tools: {
-      hello_n8n: {
+    tools: [
+      {
+        name: "hello_n8n",
         description: "A simple test tool to verify the n8n MCP server is working",
-        parameters: z.object({
-          message: z.string().describe("A message to echo back"),
-        }),
-        execute: async ({ message }: { message: string }) => {
+        inputSchema: {
+          type: "object",
+          properties: {
+            message: {
+              type: "string",
+              description: "A message to echo back",
+            },
+          },
+          required: ["message"],
+        },
+        execute: async (args: { message: string }) => {
           return {
             content: [
               {
-                type: "text" as const,
-                text: `Hello from n8n MCP! You said: ${message}`,
+                type: "text",
+                text: `Hello from n8n MCP! You said: ${args.message}`,
               },
             ],
           };
         },
       },
-    },
+    ],
   };
 }
-
-export { configSchema };
