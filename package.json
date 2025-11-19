@@ -20,7 +20,7 @@
   "displayName": "n8n Workflow Manager",
   "main": "dist/index.js",
   "module": "./src/smithery-index.ts",
-  "type": "module"
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
