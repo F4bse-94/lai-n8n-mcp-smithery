@@ -17,6 +17,7 @@
   "module": "./src/smithery-index.ts",
   "type": "module",
   "dependencies": {
+    "@smithery/sdk": "^1.0.0",
     "axios": "^1.6.0",
     "zod": "^3.22.0"
   },
