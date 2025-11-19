@@ -5,7 +5,7 @@ import axios from "axios";
 export const configSchema = z.object({
   n8nApiUrl: z.string().url().optional().describe("The URL of your n8n instance (e.g., https://your-n8n.com)"),
   n8nApiKey: z.string().optional().describe("Your n8n API key for authentication"),
-});
+}).describe("n8n API Configuration");
 
 type Config = z.infer<typeof configSchema>;
 
@@ -13,6 +13,118 @@ export default function createServer({ config }: { config: Config }) {
   const server = new McpServer({
     name: "n8n-mcp",
     version: "1.0.0",
+  });
+
+  // Server capabilities
+  server.setRequestHandler("resources/list", async () => ({
+    resources: [
+      {
+        uri: "n8n://workflows",
+        name: "n8n Workflows",
+        description: "List of all workflows in your n8n instance",
+        mimeType: "application/json",
+      },
+      {
+        uri: "n8n://executions",
+        name: "n8n Executions",
+        description: "Recent workflow executions",
+        mimeType: "application/json",
+      },
+    ],
+  }));
+
+  server.setRequestHandler("resources/read", async (request) => {
+    const uri = request.params.uri as string;
+    
+    if (uri === "n8n://workflows") {
+      const workflows = await n8nApi("/workflows?limit=100");
+      return {
+        contents: [
+          {
+            uri,
+            mimeType: "application/json",
+            text: JSON.stringify(workflows, null, 2),
+          },
+        ],
+      };
+    }
+    
+    if (uri === "n8n://executions") {
+      const executions = await n8nApi("/executions?limit=50");
+      return {
+        contents: [
+          {
+            uri,
+            mimeType: "application/json",
+            text: JSON.stringify(executions, null, 2),
+          },
+        ],
+      };
+    }
+    
+    throw new Error(`Unknown resource: ${uri}`);
+  });
+
+  server.setRequestHandler("prompts/list", async () => ({
+    prompts: [
+      {
+        name: "create-workflow",
+        description: "Interactive workflow creation assistant",
+        arguments: [
+          {
+            name: "workflow_type",
+            description: "Type of workflow (webhook-api, schedule-task, data-processing, notification)",
+            required: true,
+          },
+        ],
+      },
+      {
+        name: "debug-workflow",
+        description: "Debug a workflow and find issues",
+        arguments: [
+          {
+            name: "workflow_id",
+            description: "The workflow ID to debug",
+            required: true,
+          },
+        ],
+      },
+    ],
+  }));
+
+  server.setRequestHandler("prompts/get", async (request) => {
+    const name = request.params.name as string;
+    const args = request.params.arguments as Record<string, string> || {};
+    
+    if (name === "create-workflow") {
+      return {
+        messages: [
+          {
+            role: "user",
+            content: {
+              type: "text",
+              text: `I want to create a ${args.workflow_type} workflow. Please guide me through the process and use n8n_workflow_template to get started.`,
+            },
+          },
+        ],
+      };
+    }
+    
+    if (name === "debug-workflow") {
+      return {
+        messages: [
+          {
+            role: "user",
+            content: {
+              type: "text",
+              text: `Please debug workflow ${args.workflow_id}. Use n8n_get_workflow and n8n_validate_workflow to find issues.`,
+            },
+          },
+        ],
+      };
+    }
+    
+    throw new Error(`Unknown prompt: ${name}`);
   });
 
   // Helper function to make n8n API calls
@@ -170,6 +282,13 @@ export default function createServer({ config }: { config: Config }) {
     "n8n_create_workflow",
     "Create a new workflow in n8n. Workflow is created inactive by default.",
     {
+      annotations: {
+        audience: ["developers", "automation-engineers"],
+        required_permissions: ["workflow:create"],
+        destructive: false,
+      },
+    },
+    {
       name: z.string().describe("Name of the workflow"),
       nodes: z.array(z.any()).describe("Array of workflow nodes. Each node must have: id, name, type, typeVersion, position, parameters"),
       connections: z.record(z.any()).describe("Node connections object. Keys are source node IDs"),
@@ -234,6 +353,13 @@ export default function createServer({ config }: { config: Config }) {
     "n8n_delete_workflow",
     "Permanently delete a workflow from n8n. This action cannot be undone.",
     {
+      annotations: {
+        audience: ["developers", "administrators"],
+        required_permissions: ["workflow:delete"],
+        destructive: true,
+      },
+    },
+    {
       id: z.string().describe("The workflow ID to delete"),
     },
     async ({ id }) => {
@@ -278,6 +404,13 @@ export default function createServer({ config }: { config: Config }) {
   server.tool(
     "n8n_execute_workflow",
     "Manually execute a workflow with optional input data",
+    {
+      annotations: {
+        audience: ["developers", "testers"],
+        required_permissions: ["workflow:execute"],
+        destructive: false,
+      },
+    },
     {
       id: z.string().describe("The workflow ID to execute"),
       data: z.record(z.any()).optional().describe("Input data for the workflow execution"),
@@ -423,6 +556,13 @@ export default function createServer({ config }: { config: Config }) {
   server.tool(
     "n8n_validate_workflow",
     "Validate a workflow structure for common issues (connections, node types, required fields)",
+    {
+      annotations: {
+        audience: ["developers", "testers", "automation-engineers"],
+        required_permissions: ["workflow:read"],
+        destructive: false,
+      },
+    },
     {
       id: z.string().describe("The workflow ID to validate"),
     },
