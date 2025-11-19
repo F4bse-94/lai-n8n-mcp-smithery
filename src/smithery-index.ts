@@ -1,6 +1,6 @@
 import { z } from "zod";
 import axios from "axios";
-import { McpServer } from "@smithery/sdk";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 // Configuration schema
 export const configSchema = z.object({
@@ -112,7 +112,7 @@ const templates: Record<string, any> = {
 };
 
 // Create and export the MCP server
-export default function createServer(config: Config) {
+export default function ({ config }: { config: Config }) {
   const server = new McpServer({
     name: "n8n-mcp",
     version: "1.0.0",
@@ -412,5 +412,5 @@ export default function createServer(config: Config) {
     }
   );
 
-  return server;
+  return server.server;
 }
