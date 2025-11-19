@@ -1,27 +1,27 @@
-# n8n MCP Server ðŸš€
+# n8n MCP Server 🚀
 
 Model Context Protocol (MCP) server for n8n workflow automation. Manage workflows, executions, credentials, and more directly from your AI assistant.
 
-## Features âœ¨
+## Features ✨
 
-### ðŸ”§ Workflow Management
+### 🔧 Workflow Management
 - **List workflows** with filtering (active/inactive, tags)
 - **Create workflows** from templates or custom configurations
 - **Update workflows** (full or partial updates)
 - **Delete workflows** safely
 - **Toggle workflows** (activate/deactivate)
 
-### âš¡ Execution Management
+### ⚡ Execution Management
 - **Execute workflows** manually with custom input data
 - **List executions** with status filtering
 - **Get execution details** including all node outputs
 - **Delete executions** to clean up history
 
-### ðŸ” Credentials & Tags
+### 🔐 Credentials & Tags
 - **List credentials** by type
 - **List tags** used in workflows
 
-### âœ… Validation & Templates
+### ✅ Validation & Templates
 - **Validate workflows** for common issues
 - **Get node types** and documentation
 - **Workflow templates** for quick starts:
@@ -30,12 +30,12 @@ Model Context Protocol (MCP) server for n8n workflow automation. Manage workflow
   - Data Processing
   - Notifications
 
-### ðŸŽ¯ Smart Features
+### 🎯 Smart Features
 - **Health check** to verify API connectivity
 - **Resources** for quick access to workflows and executions
 - **Prompts** for interactive workflow creation and debugging
 
-## Installation ðŸ“¦
+## Installation 📦
 
 ### Prerequisites
 - Node.js 18+
@@ -79,7 +79,7 @@ Add to your MCP settings (e.g., Claude Desktop config):
 }
 ```
 
-## Configuration âš™ï¸
+## Configuration ⚙️
 
 ### Required Environment Variables
 
@@ -91,11 +91,11 @@ Add to your MCP settings (e.g., Claude Desktop config):
 ### Getting your n8n API Key
 
 1. Open your n8n instance
-2. Go to **Settings** â†’ **API**
+2. Go to **Settings** → **API**
 3. Click **Create API Key**
 4. Copy the key and add it to your configuration
 
-## Available Tools ðŸ› ï¸
+## Available Tools 🛠️
 
 ### System Tools
 - `n8n_health_check` - Check API connectivity and configuration
@@ -123,7 +123,7 @@ Add to your MCP settings (e.g., Claude Desktop config):
 - `n8n_get_node_types` - Get available node types
 - `n8n_workflow_template` - Get workflow templates
 
-## Usage Examples ðŸ’¡
+## Usage Examples 💡
 
 ### Create a Webhook Workflow
 
@@ -160,7 +160,7 @@ Add to your MCP settings (e.g., Claude Desktop config):
 // 2. n8n_get_execution for detailed error info
 ```
 
-## Resources ðŸ“š
+## Resources 📚
 
 The MCP server provides two resources:
 
@@ -169,7 +169,7 @@ The MCP server provides two resources:
 
 Access these directly in your MCP client for quick reference.
 
-## Prompts ðŸŽ¯
+## Prompts 🎯
 
 ### create-workflow
 Interactive workflow creation assistant. Guides you through creating workflows step-by-step.
@@ -183,18 +183,18 @@ Debug a workflow and find issues automatically.
 **Arguments:**
 - `workflow_id` - The workflow ID to debug
 
-## Development ðŸ”¨
+## Development 🔨
 
 ### Project Structure
 
 ```
 n8n-mcp/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ smithery-index.ts    # Main MCP server implementation
-â”‚   â””â”€â”€ index.ts              # Entry point
-â”œâ”€â”€ package.json
-â”œâ”€â”€ tsconfig.json
-â””â”€â”€ README.md
+├── src/
+│   ├── smithery-index.ts    # Main MCP server implementation
+│   └── index.ts              # Entry point
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
 
 ### Build
@@ -209,7 +209,7 @@ npm run build
 npm run dev
 ```
 
-## Troubleshooting ðŸ”
+## Troubleshooting 🔍
 
 ### "Authentication failed - configuration is invalid"
 
@@ -223,21 +223,21 @@ npm run dev
 
 **Solution:** This is normal during Smithery scanning. The server will work once properly configured.
 
-## Contributing ðŸ¤
+## Contributing 🤝
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License ðŸ“„
+## License 📄
 
 MIT License - see LICENSE file for details
 
-## Support ðŸ’¬
+## Support 💬
 
 - **Issues:** [GitHub Issues](https://github.com/yourusername/n8n-mcp/issues)
 - **n8n Documentation:** [n8n.io/docs](https://docs.n8n.io)
 - **MCP Documentation:** [modelcontextprotocol.io](https://modelcontextprotocol.io)
 
-## Acknowledgments ðŸ™
+## Acknowledgments 🙏
 
 - Built with [Model Context Protocol SDK](https://github.com/modelcontextprotocol/sdk)
 - Powered by [n8n](https://n8n.io)
@@ -245,4 +245,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-Made with â¤ï¸ for the n8n and MCP communities
+Made with ❤️ for the n8n and MCP communities
