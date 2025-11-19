@@ -1,4 +1,9 @@
-transport: stdio
+runtime: typescript
+
+startCommand:
+  command: node
+  args:
+    - dist/smithery-index.js
 
 configSchema:
   type: object
