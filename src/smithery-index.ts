@@ -4,8 +4,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 // Configuration schema
 export const configSchema = z.object({
-  n8nApiUrl: z.string().url().describe("The URL of your n8n instance (e.g., https://your-n8n.com)"),
-  n8nApiKey: z.string().describe("Your n8n API key for authentication"),
+  n8nApiUrl: z.string().url().optional().describe("The URL of your n8n instance (e.g., https://your-n8n.com). Leave empty for demo mode."),
+  n8nApiKey: z.string().optional().describe("Your n8n API key for authentication. Leave empty for demo mode."),
+  demoMode: z.boolean().optional().default(true).describe("Enable demo mode with mock data (no real n8n instance needed)"),
 });
 
 export type Config = z.infer<typeof configSchema>;
