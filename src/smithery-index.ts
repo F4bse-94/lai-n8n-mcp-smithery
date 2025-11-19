@@ -11,8 +11,197 @@ export const configSchema = z.object({
 
 export type Config = z.infer<typeof configSchema>;
 
-// n8n API helper
+// Demo data helper function
+const getDemoData = (endpoint: string, method: string, data?: any) => {
+  // Workflows
+  if (endpoint.includes("/workflows")) {
+    if (method === "POST") {
+      return {
+        id: "demo-wf-" + Date.now(),
+        name: data.name || "Demo Workflow",
+        active: false,
+        nodes: data.nodes || [],
+        connections: data.connections || {},
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    }
+    if (method === "PATCH") {
+      return {
+        id: endpoint.split("/").pop(),
+        ...data,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+    if (method === "DELETE") {
+      return { success: true };
+    }
+    if (endpoint.includes("/execute")) {
+      return {
+        executionId: "demo-exec-" + Date.now(),
+        status: "success",
+        data: { resultData: { runData: {} } },
+        startedAt: new Date().toISOString(),
+        finishedAt: new Date().toISOString(),
+      };
+    }
+    // Get single workflow
+    if (endpoint.match(/\/workflows\/[^/]+$/)) {
+      const id = endpoint.split("/").pop();
+      return {
+        id,
+        name: "Demo Workflow " + id,
+        active: true,
+        nodes: [
+          {
+            name: "Start",
+            type: "n8n-nodes-base.start",
+            position: [250, 300],
+            parameters: {},
+          },
+        ],
+        connections: {},
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    }
+    // List workflows
+    return {
+      data: [
+        {
+          id: "demo-wf-1",
+          name: "Demo Webhook API",
+          active: true,
+          tags: [{ id: "1", name: "demo" }],
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: "demo-wf-2",
+          name: "Demo Scheduled Task",
+          active: false,
+          tags: [{ id: "1", name: "demo" }],
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: "demo-wf-3",
+          name: "Demo Data Processing",
+          active: true,
+          tags: [{ id: "2", name: "processing" }],
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    };
+  }
+
+  // Executions
+  if (endpoint.includes("/executions")) {
+    if (method === "DELETE") {
+      return { success: true };
+    }
+    // Get single execution
+    if (endpoint.match(/\/executions\/[^/]+$/)) {
+      const id = endpoint.split("/").pop();
+      return {
+        id,
+        workflowId: "demo-wf-1",
+        status: "success",
+        mode: "manual",
+        startedAt: new Date(Date.now() - 60000).toISOString(),
+        finishedAt: new Date().toISOString(),
+        data: {
+          resultData: {
+            runData: {
+              Start: [
+                {
+                  data: {
+                    main: [[{ json: { demo: true, message: "Demo execution data" } }]],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      };
+    }
+    // List executions
+    return {
+      data: [
+        {
+          id: "demo-exec-1",
+          workflowId: "demo-wf-1",
+          status: "success",
+          mode: "manual",
+          startedAt: new Date(Date.now() - 3600000).toISOString(),
+          finishedAt: new Date(Date.now() - 3500000).toISOString(),
+        },
+        {
+          id: "demo-exec-2",
+          workflowId: "demo-wf-2",
+          status: "error",
+          mode: "trigger",
+          startedAt: new Date(Date.now() - 7200000).toISOString(),
+          finishedAt: new Date(Date.now() - 7100000).toISOString(),
+        },
+        {
+          id: "demo-exec-3",
+          workflowId: "demo-wf-1",
+          status: "success",
+          mode: "webhook",
+          startedAt: new Date(Date.now() - 1800000).toISOString(),
+          finishedAt: new Date(Date.now() - 1700000).toISOString(),
+        },
+      ],
+    };
+  }
+
+  // Credentials
+  if (endpoint.includes("/credentials")) {
+    return {
+      data: [
+        {
+          id: "demo-cred-1",
+          name: "Demo HTTP Auth",
+          type: "httpBasicAuth",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: "demo-cred-2",
+          name: "Demo OAuth2",
+          type: "oauth2Api",
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    };
+  }
+
+  // Tags
+  if (endpoint.includes("/tags")) {
+    return {
+      data: [
+        { id: "1", name: "demo" },
+        { id: "2", name: "processing" },
+        { id: "3", name: "automation" },
+      ],
+    };
+  }
+
+  // Default response
+  return {
+    message: "Demo mode active - using mock data",
+    endpoint,
+    method,
+  };
+};
+
+// n8n API helper with demo mode support
 const n8nApi = async (config: Config, endpoint: string, method = "GET", data?: any) => {
+  // Check if demo mode is active or credentials are missing
+  if (config.demoMode || !config.n8nApiUrl || !config.n8nApiKey) {
+    console.log(`[DEMO MODE] ${method} ${endpoint}`);
+    return getDemoData(endpoint, method, data);
+  }
+
+  // Real API call
   try {
     const response = await axios({
       method,
@@ -119,6 +308,11 @@ export default function ({ config }: { config: Config }) {
     version: "1.0.0",
   });
 
+  // Add info about demo mode
+  const modeInfo = config.demoMode || !config.n8nApiUrl || !config.n8nApiKey
+    ? "🎭 Running in DEMO MODE with mock data"
+    : `✅ Connected to n8n at ${config.n8nApiUrl}`;
+
   // Register all tools
   server.tool(
     "n8n_health_check",
@@ -129,7 +323,7 @@ export default function ({ config }: { config: Config }) {
       return {
         content: [{
           type: "text",
-          text: `✅ n8n API is accessible at ${config.n8nApiUrl}`,
+          text: modeInfo,
         }],
       };
     }
