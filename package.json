@@ -19,7 +19,8 @@
   "icon": "https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-icon.png",
   "displayName": "n8n Workflow Manager",
   "main": "dist/index.js",
-  "type": "module",
+  "module": "./src/smithery-index.ts",
+  "type": "module"
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
